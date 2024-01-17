@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width,initial-scale=1" name="viewport">
+    <meta content="description" name="description">
+    <meta name="google" content="notranslate" />
+    <meta content="Mashup templates" name="author">
+
+    <!-- Disable tap highlight on IE -->
+    <meta name="msapplication-tap-highlight" content="no">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="./static/assets/logo.png">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <title>Dashboard</title>
+    <style>
+    .table__container {
+            max-height: 300px; 
+            width:100%; /* Set the maximum height for the scrollable area */
+            overflow-y:scroll   /* Enable vertical scrolling */
+        }
+    .dbutton{
+        margin-top:10px;
+        margin-left:10px;
+    }
+
+
+    </style>    
+    
+
+    <link href="./static/design.css" rel="stylesheet">
+</head>
+
+<body class="">
+    <div id="site-border-left"></div>
+    <div id="site-border-right"></div>
+    <div id="site-border-top"></div>
+    <div id="site-border-bottom"></div>
+    <!-- Add your content of header -->
+    <header>
+        <nav class="navbar  navbar-fixed-top navbar-default">
+            <div class="container">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+
+                <div class="collapse navbar-collapse" id="navbar-collapse">
+                    <ul class="nav navbar-nav ">
+                        <li><a href="/" title="">01 : Home</a></li>
+                        <li><a href="./about.html" title="">02 : About us</a></li>
+                        <li><a href="./works.html" title="">03 : Dashboard</a></li>
+                        <li><a href="./contact.html" title="">04 : Contact</a></li>
+
+                    </ul>
+
+
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="section-container">
+        <div class="container">
+            <div class="row">
+
+                <div class="col-sm-8 col-sm-offset-2 section-container-spacer">
+                    <div class="text-center">
+                        <h2 class="h2">03 : Dashboard</h2>
+                        <p>Heres a list of malicious transactions as predicted by our model.</p>
+                    </div>
+                </div>
+<!-- carousel removed here -->
+                <div class="table__container">
+                    <table class="table">
+                        <tr class="table__header">
+                            {% for header in headers %}
+                            <th class="table__cell">{{ header }}</th>
+                            {% endfor %}
+                        </tr>
+                        {% for row in data %}
+                            <tr class="table__row">
+                                {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <button class="dbutton"id="downloadButton">Download Table</button>
+                <button id="shareButton">Share Table</button>
+
+
+
+
+            </div>
+        </div>
+    </div>
+
+
+    <footer class="footer-container text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <p>prabhalapranathi@gmail.com | +91-9945851507</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            navActivePage();
+        });
+    </script>
+
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID 
+
+<script>
+  (function (i, s, o, g, r, a, m) {
+    i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date(); a = s.createElement(o),
+      m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+  })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+  ga('create', 'UA-XXXXX-X', 'auto');
+  ga('send', 'pageview');
+</script>
+
+-->
+<script>
+    document.getElementById('downloadButton').addEventListener('click', function () {
+            downloadTableAsCSV('table.csv');
+        });
+
+        document.getElementById('shareButton').addEventListener('click', function () {
+            shareTableByEmail();
+        });
+
+        function downloadTableAsCSV(fileName) {
+            var table = document.querySelector('.table');
+            var rows = table.querySelectorAll('tr');
+            var csvContent = '';
+
+            rows.forEach(function (row) {
+                var cells = row.querySelectorAll('td, th');
+                csvContent += Array.from(cells).map(cell => cell.innerText).join(',') + '\n';
+            });
+
+            var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+
+            if (navigator.msSaveBlob) { 
+                navigator.msSaveBlob(blob, fileName);
+            } else {
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        function shareTableByEmail() {
+            var table = document.querySelector('.table');
+            var rows = table.querySelectorAll('tr');
+            var emailContent = 'Table Data:\n\n';
+
+            rows.forEach(function (row) {
+                var cells = row.querySelectorAll('td, th');
+                emailContent += Array.from(cells).map(cell => cell.innerText).join('\t') + '\n';
+            });
+
+            var subject = encodeURIComponent('Shared Table');
+            var body = encodeURIComponent(emailContent);
+
+            var mailtoLink = 'mailto:?subject=' + subject + '&body=' + body;
+
+            // Open user's default email client
+            window.location.href = mailtoLink;
+        }
+
+
+    document.getElementById('downloadButton').addEventListener('click', function () {
+        downloadTableAsCSV('table.csv');
+    });
+
+    function downloadTableAsCSV(fileName) {
+        var table = document.querySelector('.table');
+        var rows = table.querySelectorAll('tr');
+        var csvContent = '';
+
+        rows.forEach(function (row) {
+            var cells = row.querySelectorAll('td, th');
+            csvContent += Array.from(cells).map(cell => cell.innerText).join(',') + '\n';
+        });
+
+        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        var link = document.createElement('a');
+
+        if (navigator.msSaveBlob) { // IE 10+
+            navigator.msSaveBlob(blob, fileName);
+        } else {
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+</script>
+    <script type="text/javascript" src="./static/main.js">
+ // JavaScript code for downloading the table as a CSV file
+ document.getElementById('downloadButton').addEventListener('click', function () {
+        downloadTableAsCSV('table.csv');
+    });
+
+    function downloadTableAsCSV(fileName) {
+        var table = document.querySelector('.table');
+        var rows = table.querySelectorAll('tr');
+        var csvContent = '';
+
+        rows.forEach(function (row) {
+            var cells = row.querySelectorAll('td, th');
+            csvContent += Array.from(cells).map(cell => cell.innerText).join(',') + '\n';
+        });
+
+        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        var link = document.createElement('a');
+
+        if (navigator.msSaveBlob) { // IE 10+
+            navigator.msSaveBlob(blob, fileName);
+        } else {
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+    </script>
+</body>
+
+</html>
